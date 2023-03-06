@@ -19,6 +19,7 @@ class GarantiPosCrypt extends AbstractCrypt
             $account->getTerminalId(),
             $requestData['id'],
             $requestData['amount'],
+            $requestData['currency'],
             $requestData['success_url'],
             $requestData['fail_url'],
             $txType,
@@ -27,7 +28,7 @@ class GarantiPosCrypt extends AbstractCrypt
             $this->createSecurityData($account, $txType),
         ];
 
-        return $this->hashStringUpperCase(implode(static::HASH_SEPARATOR, $map));
+        return $this->hashStringUpperCase(implode(static::HASH_SEPARATOR, $map), 'sha512');
     }
 
     /**
@@ -46,7 +47,7 @@ class GarantiPosCrypt extends AbstractCrypt
         }
 
         $hashVal    = $paramsVal.$account->getStoreKey();
-        $actualHash = $this->hashString($hashVal);
+        $actualHash = $this->hashStringUpperCase($hashVal, 'sha512');
 
         if ($data['hash'] === $actualHash) {
             $this->logger->log(LogLevel::DEBUG, 'hash check is successful');
@@ -73,12 +74,15 @@ class GarantiPosCrypt extends AbstractCrypt
         $map = [
             $requestData['id'],
             $account->getTerminalId(),
-            isset($card) ? $card->getNumber() : null,
             $requestData['amount'],
+            $requestData['currency'],
             $this->createSecurityData($account, $txType),
         ];
 
-        return $this->hashStringUpperCase(implode(static::HASH_SEPARATOR, $map));
+        ray('map', implode(static::HASH_SEPARATOR, $map));
+        ray('hashData', $this->hashStringUpperCase(implode(static::HASH_SEPARATOR, $map), 'sha512'));
+
+        return $this->hashStringUpperCase(implode(static::HASH_SEPARATOR, $map), 'sha512');
     }
 
     /**
@@ -102,7 +106,9 @@ class GarantiPosCrypt extends AbstractCrypt
             str_pad($account->getTerminalId(), 9, '0', STR_PAD_LEFT),
         ];
 
-        return $this->hashStringUpperCase(implode(static::HASH_SEPARATOR, $map));
+        ray('security_data', $this->hashStringUpperCase(implode(static::HASH_SEPARATOR, $map), 'sha1'));
+
+        return $this->hashStringUpperCase(implode(static::HASH_SEPARATOR, $map), 'sha1');
     }
 
     /**
@@ -110,8 +116,8 @@ class GarantiPosCrypt extends AbstractCrypt
      *
      * @return string
      */
-    protected function hashStringUpperCase(string $str): string
+    protected function hashStringUpperCase(string $str, string $algo): string
     {
-        return strtoupper(hash(static::HASH_ALGORITHM, $str));
+        return strtoupper(hash($algo, $str));
     }
 }

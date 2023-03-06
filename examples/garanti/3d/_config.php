@@ -8,12 +8,12 @@ $baseUrl = $bankTestsUrl.'/3d/';
 //account bilgileri kendi account bilgilerinizle degistiriniz
 $account = AccountFactory::createGarantiPosAccount(
     'garanti',
-    '7000679',
+    '1295076',
     'PROVAUT',
-    '123qweASD/',
-    '30691298',
+    '2023Esgo$',
+    '10215352',
     \Mews\Pos\Gateways\AbstractGateway::MODEL_3D_SECURE,
-    '12345678'
+    '323032334573676f323032334573676f323032334573676f'
 );
 
 $pos = getGateway($account);
